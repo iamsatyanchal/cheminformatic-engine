@@ -1,0 +1,114 @@
+@js:~
+const http = require('node:http');
+~:
+show "write down the chemical formula for an element you want to test: ";
+store chemical_formula = :input;
+fix store PORT = 3000; 
+all store chemical_formula_len = method:string chemical_formula.length[];
+all store dblbond = 0;
+all store trpbond = 0;
+all store atomCount = 0;
+all store hydrogenCount = 0;
+all store stability = "";
+all store bondRatio = 0;
+make parsesmiles[chemical_formula] {
+    repeat [i in 0 to chemical_formula_len-1, 1] {
+        store checkparam_orig = method:string chemical_formula.charat[i];
+        store checkparam = method:string checkparam_orig.lower[];
+        check[ checkparam === "=" ] {
+            update dblbond = dblbond + 1;
+        }
+        check[ checkparam === "#" ] {
+            update trpbond = trpbond + 1;
+        }
+        check[ method:string checkparam.isalpha[] and checkparam != "h"] {
+            update atomCount = atomCount + 1;
+        }
+        check[ checkparam === "h" ] {
+            check [ (i+1) < chemical_formula_len ] {
+                store nextchar = method:string chemical_formula.charat[i+1];
+                check[ method:string nextchar.isnumeric[] ] {
+                    update hydrogenCount = hydrogenCount + method:string nextchar.toint[];
+                }
+                alt {
+                    update hydrogenCount = hydrogenCount + 1;
+                }
+            }
+            alt {
+                update hydrogenCount = hydrogenCount + 1;
+            }
+        }
+    }
+    update bondRatio = (dblbond + trpbond) / (atomCount or 1);
+    check[ bondRatio > 0.5 ] {
+        update stability = "Low Stability";
+    }
+    alt check[ bondRatio > 0.2 ] {
+        update stability = "Moderate Stability";
+    }
+    alt {
+        update stability = "Likely Stable";
+    }
+    show `Double bonds = [dblbond], Triple bonds = [trpbond], Total atoms = [atomCount+hydrogenCount], H count ~ [hydrogenCount], Stability = [stability]`;
+}
+call parsesmiles[chemical_formula];
+all store finalcontent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Extended Chemical Analysis Sheet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="py-2 bg-gray-200 font-sans text-black">
+  <div class="max-w-3xl mx-auto bg-white border-8 border-black shadow-2xl">
+
+    <div class="bg-yellow-400 border-b-8 border-black p-6 text-center">
+      <h1 class="text-4xl font-black uppercase tracking-tighter">Chemical Analysis</h1>
+      <h2 class="text-xl font-bold mt-2 bg-black text-yellow-400 inline-block px-4 py-1">FORMULA: [chemical_formula]</h2>
+    </div>
+
+    <div class="grid grid-cols-2 text-lg font-bold text-center">
+      
+      <div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600 text-1xl">Total Atoms</div>
+      <div class="p-4 border-b-4 border-black text-2xl">[atomCount+hydrogenCount]</div>
+
+      <div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600 text-1xl">Hydrogen (Est.)</div>
+      <div class="p-4 border-b-4 border-black text-2xl">[hydrogenCount]</div>
+
+      <div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600 text-1xl">Double Bonds</div>
+      <div class="p-4 border-b-4 border-black text-2xl">[dblbond]</div>
+
+      <div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600 text-1xl">Triple Bonds</div>
+      <div class="p-4 border-b-4 border-black text-2xl">[trpbond]</div>
+
+      <div class="p-4 border-b-8 border-r-4 border-black bg-gray-200 uppercase text-gray-600 text-1xl">Bond/Atom Ratio</div>
+      <div class="p-4 border-b-8 border-black text-2xl">[bondRatio]</div>
+
+      <div class="p-6 border-r-4 border-black bg-red-600 text-white uppercase text-xl flex items-center justify-center">
+        Stability Result
+      </div>
+      <div class="p-6 bg-red-100 text-red-700 text-2xl uppercase tracking-wider">
+        [stability]
+      </div>
+
+    </div>
+
+    <div class="bg-black text-gray-300 p-4 text-xs uppercase text-center align-center items-center font-semibold">
+      Estimated counts based on simple string parsing. Exact chemistry requires structural parsing libraries.
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+@js:~
+const server = http.createServer((request, response) => {
+    response.writeHead(200, { 'Content-Type': 'text/html' });
+    response.end(finalcontent);
+});
+server.listen(PORT, () => {
+    console.log(`Server running at localhost:${PORT}`);
+});
+~:
