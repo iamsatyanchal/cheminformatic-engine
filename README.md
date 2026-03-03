@@ -7,7 +7,44 @@ Cheminformatic is a lightweight cheminformatics experiment created to test the p
 
 It generates a styled chemical analysis sheet and serves it through a Node.js HTTP server.
 
-## Examples
+---
+
+## Installation & Running
+
+### Step 1 — Install Epoxy Language
+
+Install Epoxy globally from the GitHub repository:
+
+```
+npm install -g https://github.com/iamsatyanchal/epoxylang/
+```
+
+---
+
+### Step 2 — Run the Project
+
+Navigate to the project directory and execute:
+
+```
+epoxy main.epx
+```
+
+After execution, the Node.js server will start, enter a chemical formula (try this: `CH2=CHOH`):
+
+```
+Server running at localhost:3000
+```
+
+Open your browser and visit:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Example Inputs
+
 ```
 C2H6
 C=C
