@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheminformatic Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .serif {
+      font-family: 'Playfair Display', serif;
+    }
+  </style>
+</head>
+
+<body class="bg-neutral-100 text-neutral-800">
+  <div class="max-w-4xl mx-auto px-6 py-20">
+    <header class="mb-16">
+      <h1 class="serif text-5xl font-bold tracking-tight mb-4">
+        Cheminformatic Engine
+      </h1>
+  
+    </header>
+    <section class="mb-14">
+      <h2 class="serif text-2xl font-semibold mb-4">Overview</h2>
+      <p class="text-neutral-700 leading-relaxed mb-2">
+        Cheminformatic analyzes molecular strings, detects double and triple bonds,
+        estimates hydrogen counts and computes a bond-to-atom ratio to classify
+        molecular stability using heuristic logic.  
+        It generates a styled chemical analysis report served via Node.js.
+      </p>
+      
+        <p class="text-neutral-700 leading-relaxed">
+    This is <span class="font-semibold">not a hosted web application</span>.
+    It is a terminal-based Epoxy program that runs locally and spins up a
+    lightweight Node.js HTTP server purely to render the generated analysis
+    sheet in the browser.
+  </p>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="serif text-2xl font-semibold mb-4">How It Works</h2>
+      <ul class="space-y-2 text-neutral-700">
+        <li>• Character-by-character molecular string parsing</li>
+        <li>• Double (<code>=</code>) and triple (<code>#</code>) bond detection</li>
+        <li>• Atom counting and hydrogen estimation</li>
+        <li>• Bond-to-atom ratio calculation</li>
+        <li>• Stability classification heuristic</li>
+      </ul>
+    </section>
+   <section class="mb-14">
+  <h2 class="serif text-2xl font-semibold mb-4">Setup & Installation</h2>
+
+  <p class="mb-3 text-neutral-700">
+    First, clone the Cheminformatic repository:
+  </p>
+
+  <div class="bg-neutral-900 text-neutral-100 rounded-xl p-4 text-sm overflow-x-auto mb-4">
+    git clone https://github.com/iamsatyanchal/cheminformatic-engine.git
+  </div>
+
+  <p class="mb-3 text-neutral-700">
+    Navigate into the project directory:
+  </p>
+
+  <div class="bg-neutral-900 text-neutral-100 rounded-xl p-4 text-sm overflow-x-auto mb-4">
+    cd cheminformatic-engine
+  </div>
+
+  <p class="mb-3 text-neutral-700">
+    Then install the Epoxy runtime globally:
+  </p>
+
+  <div class="bg-neutral-900 text-neutral-100 rounded-xl p-4 text-sm overflow-x-auto">
+    npm install -g https://github.com/iamsatyanchal/epoxylang/
+  </div>
+</section>
+
+
+<section class="mb-14">
+  <h2 class="serif text-2xl font-semibold mb-4">Running the Project</h2>
+
+  <p class="mb-3 text-neutral-700">
+    After installation, run the Epoxy program:
+  </p>
+
+  <div class="bg-neutral-900 text-neutral-100 rounded-xl p-4 text-sm mb-4">
+    epoxy main.epx
+  </div>
+
+  <p class="text-neutral-700 mb-2">
+    The program will execute in the terminal and start a lightweight local server.
+  </p>
+
+  <div class="bg-neutral-200 rounded-xl p-3 text-sm mt-2">
+    http://localhost:3000
+  </div>
+
+  <p class="mt-4 text-neutral-600 text-sm leading-relaxed">
+    Note: This is a terminal-based Epoxy application. The browser is only used to 
+    display the generated analysis report served by the local Node.js server.
+    It is not a deployable web application.
+  </p>
+</section>
+
+    <section class="mb-16">
+      <h2 class="serif text-2xl font-semibold mb-4">Example Inputs</h2>
+
+      <div class="bg-neutral-900 text-neutral-100 rounded-xl p-4 text-sm space-y-1">
+        <div>C2H6</div>
+        <div>CH2=CH2</div>
+        <div>C#N</div>
+        <div>CH3C=OOH</div>
+        <div>CH3C=OOHC6H4C=OOH</div>
+      </div>
+    </section>
+
+    <footer class="border-t pt-8 text-sm text-neutral-500">
+      Built as a language validation experiment and lightweight cheminformatics prototype using <a href="http://epoxylang.js.org">Epoxy programming language</a>.
+    </footer>
+
+  </div>
+
+</body>
+</html>
