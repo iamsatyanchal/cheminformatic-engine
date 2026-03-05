@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cheminformatic Engine</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="py-4 bg-gray-200 font-sans text-black">
+
+<div class="max-w-4xl mx-auto text-center mb-6">
+<input id="formula_input" class="border-4 border-black px-4 py-2 text-lg w-72" placeholder="Enter Chemical Name or Formula">
+<button onclick="analyze_formula()" id="btnhai" class="font-bold bg-black text-white px-6 py-2 border-4 border-black ml-2">Analyze</button>
+</div>
+
+<div class="max-w-4xl mx-auto bg-white border-8 border-black shadow-2xl">
+
+<div class="bg-yellow-400 border-b-8 border-black p-6 text-center">
+<h1 class="text-4xl font-black uppercase tracking-tighter">Chemical Analysis</h1>
+<h2 id="formula_text" class="text-xl font-bold mt-2 bg-black text-yellow-400 inline-block px-4 py-1">FORMULA: -</h2>
+</div>
+
+<div class="border-t-8 bg-[#f5f5f5] border-black flex justify-center">
+<img id="smiles_image">
+</div>
+<div class="border-t-4 border-black grid grid-cols-2 text-lg font-bold text-center">
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Chemical Name</div>
+<div id="chemical_name" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">SMILES</div>
+<div id="smiles_code" class="p-4 border-b-4 border-black text-xl break-all">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Molecular Weight</div>
+<div id="molecular_weight" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Total Atoms</div>
+<div id="atoms_total" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Hydrogen Atoms</div>
+<div id="hydrogen_atoms" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Double Bonds</div>
+<div id="double_bonds" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Triple Bonds</div>
+<div id="triple_bonds" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Aromatic</div>
+<div id="aromatic" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Rings</div>
+<div id="rings" class="p-4 border-b-4 border-black text-xl">0</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Functional Groups</div>
+<div id="functional_groups" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Polarity</div>
+<div id="polarity" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Acidic</div>
+<div id="acidic" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Basic</div>
+<div id="basic" class="p-4 border-b-4 border-black text-xl">-</div>
+
+<div class="p-4 border-b-8 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Organic</div>
+<div id="organic" class="p-4 border-b-8 border-black text-xl">-</div>
+
+</div>
+
+<div class="bg-black text-gray-300 p-4 text-xs uppercase text-center font-semibold">
+Estimated counts based on simple string parsing. Exact chemistry requires structural parsing libraries.
+</div>
+
+</div>
+
+<script src="./check.js"></script>
+
+</body>
+</html>
