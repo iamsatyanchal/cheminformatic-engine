@@ -217,6 +217,19 @@
         const wtfareyoudoing = window.atob("Z3NrX21pZ2l3aUl1dTFPQlhpMGpUOTQ2V0dkeWIzRllrZkZ3ZnJFbHdVS1VDdVBRZzQyVFBPbG0=");
 
         const systemPrompt = `You are a cheminformatics assistant.
+
+Your task is to take a **chemical name OR chemical formula** as input and return the **SMILES representation and chemical information** in **strict JSON format only**.
+Follow these rules strictly:
+1. Accept either:
+* Chemical name (example: "benzene")
+* Chemical formula (example: "C6H6")
+2. Generate the **correct canonical SMILES string**.
+3. Provide estimated chemical information fields.
+4. Your output must be **VALID JSON ONLY**.
+Do **not** include explanations, comments, markdown, or extra text.
+5. Always return the JSON object using the following schema.
+6. If the chemical cannot be identified, set "found": false and keep other fields null.
+7. Numeric fields must be numbers, not strings.
 Your task is to take a chemical name OR chemical formula as input and return the SMILES representation and chemical information in strict JSON format.
 Rules:
 1. Identify the chemical accurately.
@@ -245,6 +258,35 @@ JSON OUTPUT SCHEMA
     "basic": boolean,
     "organic": boolean
   }
+}
+
+
+---
+
+
+
+Example Input: benzene
+Example Output:
+{
+"found": true,
+"input": "benzene",
+"chemical_name": "Benzene",
+"formula": "C6H6",
+"smiles": "c1ccccc1",
+"molecular_weight": 78.11,
+"atoms": 12,
+"hydrogen_atoms": 6,
+"double_bonds": 3,
+"triple_bonds": 0,
+"aromatic": true,
+"rings": 1,
+"functional_groups": [],
+"basic_properties": {
+"polarity": "nonpolar",
+"acidic": false,
+"basic": false,
+"organic": true
+}
 }`;
 
         // Boolean ko Yes/No me badalne ka utility function
