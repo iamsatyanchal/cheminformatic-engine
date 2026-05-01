@@ -6,38 +6,80 @@
     <title>Cheminformatic Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom scrollbar for compactness */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Compact scrollbar ka design */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Utility to hide elements cleanly */
+        /* Elements ko hide karne ke liye utility class */
         .hidden-state { display: none !important; }
+
+        /* Smooth slide and fade animations ke liye */
+        .slide-down {
+            animation: slideDown 0.4s ease-out forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen antialiased">
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen antialiased flex flex-col">
 
-    <!-- Top Navigation / Search Bar -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <div class="w-6 h-6 bg-black text-white flex items-center justify-center font-bold text-xs rounded-sm">C</div>
-                <h1 class="font-semibold text-lg tracking-tight">Cheminformatic Engine</h1>
-            </div>
-            
-            <form id="searchForm" class="flex w-full sm:w-auto gap-2">
+    <!-- HOMEPAGE HERO SECTION (Starting View) -->
+    <div id="homeHero" class="flex flex-col items-center justify-center flex-grow px-4 py-20 transition-opacity duration-500">
+        <!-- Logo and Title -->
+        <div class="w-20 h-20 bg-black text-white flex items-center justify-center font-bold text-4xl rounded-2xl mb-8 shadow-xl">C</div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 text-center">Cheminformatic Engine</h1>
+        <p class="text-lg sm:text-xl text-gray-500 mb-10 text-center max-w-2xl">Enter a chemical name or formula to instantly generate a comprehensive structural and property analysis.</p>
+
+        <!-- Big Centered Search Form -->
+        <form id="homeSearchForm" class="w-full max-w-2xl flex flex-col sm:flex-row gap-4">
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
                 <input 
                     type="text" 
-                    id="formula_input" 
-                    class="w-full sm:w-80 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-shadow placeholder:text-gray-400" 
-                    placeholder="Enter Chemical Name (e.g., Benzene) or Formula"
+                    id="home_formula_input" 
+                    class="w-full pl-14 pr-5 py-4 text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-all shadow-sm hover:shadow-md placeholder:text-gray-400" 
+                    placeholder="e.g., Benzene, C6H6, Aspirin"
+                    required
+                >
+            </div>
+            <button 
+                type="submit" 
+                id="homeAnalyzeBtn" 
+                class="bg-black text-white px-10 py-4 text-lg font-semibold rounded-full hover:bg-gray-800 transition-colors shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+            >
+                Analyze
+            </button>
+        </form>
+    </div>
+
+    <!-- TOP NAVIGATION (Hidden by default, shows after first search) -->
+    <header id="topHeader" class="hidden-state bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Top Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+                <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-bold text-sm rounded-md shadow-sm">C</div>
+                <h1 class="font-bold text-xl tracking-tight hidden sm:block">Cheminformatic</h1>
+            </div>
+            
+            <!-- Compact Top Search Form -->
+            <form id="topSearchForm" class="flex w-full sm:w-auto gap-2">
+                <input 
+                    type="text" 
+                    id="top_formula_input" 
+                    class="w-full sm:w-96 px-4 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition-shadow placeholder:text-gray-400" 
+                    placeholder="Enter Chemical Name or Formula"
                     required
                 >
                 <button 
                     type="submit" 
-                    id="analyzeBtn" 
-                    class="bg-black text-white px-4 py-1.5 text-sm font-medium rounded-md hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[100px] justify-center"
+                    id="topAnalyzeBtn" 
+                    class="bg-black text-white px-6 py-2 text-base font-medium rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[120px] justify-center shadow-sm"
                 >
                     <span id="btnText">Analyze</span>
                 </button>
@@ -45,130 +87,124 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- MAIN CONTENT AREA (Results) -->
+    <main id="mainContent" class="hidden-state max-w-7xl mx-auto px-4 py-8 w-full">
         
-        <!-- Welcome / Empty State -->
-        <div id="emptyState" class="text-center py-20">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            </div>
-            <h2 class="text-xl font-medium text-gray-900 mb-2">Awaiting Input</h2>
-            <p class="text-sm text-gray-500 max-w-md mx-auto">Enter a chemical name or formula in the search bar above to generate a comprehensive structural and property analysis.</p>
-        </div>
-
-        <!-- Error State -->
-        <div id="errorState" class="hidden-state bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6 text-sm">
-            <strong class="font-semibold">Analysis Failed: </strong>
+        <!-- Error State (Agar kuch gadbad ho jaye) -->
+        <div id="errorState" class="hidden-state bg-red-50 border-l-4 border-red-600 text-red-800 px-6 py-4 rounded-md mb-8 shadow-sm text-base">
+            <strong class="font-semibold block mb-1">Analysis Failed</strong>
             <span id="errorMessage">Could not identify the requested chemical structure. Please check your spelling and try again.</span>
         </div>
 
-        <!-- Dashboard Results -->
-        <div id="resultsDashboard" class="hidden-state grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Dashboard Results (Main Data Grid) -->
+        <div id="resultsDashboard" class="hidden-state grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- Left Column: Visuals & Core Identity -->
-            <div class="lg:col-span-4 flex flex-col gap-6">
-                <!-- Structure Card -->
-                <div class="bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col shadow-sm">
-                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Molecular Structure</h3>
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- Primary Info Card -->
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                    <div class="p-6 border-b border-gray-100">
+                        <h2 id="chemical_name" class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">-</h2>
+                        <div class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-gray-100 text-gray-800 border border-gray-200">
+                            Formula: <span id="formula_text" class="ml-1 font-mono text-base">-</span>
+                        </div>
                     </div>
-                    <div class="p-4 flex-grow flex items-center justify-center bg-white min-h-[250px]">
-                        <img id="smiles_image" class="max-w-full max-h-[250px] object-contain mix-blend-multiply" alt="Chemical Structure" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='block';">
-                        <div id="imgFallback" class="text-sm text-gray-400 hidden-state">Structure preview unavailable</div>
+                    <div class="p-6 bg-gray-50">
+                        <div class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Canonical SMILES</div>
+                        <div id="smiles_code" class="text-base font-mono text-gray-800 break-all bg-white border border-gray-200 p-3 rounded-lg shadow-inner">-</div>
                     </div>
                 </div>
 
-                <!-- Primary Info Card -->
-                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
-                    <div class="p-4 border-b border-gray-100">
-                        <h2 id="chemical_name" class="text-2xl font-bold tracking-tight text-gray-900 mb-1">-</h2>
-                        <div class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                            Formula: <span id="formula_text" class="ml-1 font-mono">-</span>
-                        </div>
+                <!-- Structure Card -->
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Molecular Structure</h3>
                     </div>
-                    <div class="p-4 bg-gray-50">
-                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Canonical SMILES</div>
-                        <div id="smiles_code" class="text-sm font-mono text-gray-800 break-all bg-white border border-gray-200 p-2 rounded">-</div>
+                    <div class="p-6 flex-grow flex items-center justify-center bg-white min-h-[300px]">
+                        <img id="smiles_image" class="max-w-full max-h-[300px] object-contain mix-blend-multiply transition-opacity duration-300" alt="Chemical Structure" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='block';">
+                        <div id="imgFallback" class="text-base text-gray-400 hidden-state font-medium">Structure preview unavailable</div>
                     </div>
                 </div>
             </div>
 
             <!-- Right Column: Data Grid -->
-            <div class="lg:col-span-8 flex flex-col gap-6">
+            <div class="lg:col-span-7 flex flex-col gap-6">
                 
                 <!-- Physical & Structural Stats -->
-                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
-                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Structural Composition</h3>
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Structural Composition</h3>
                     </div>
-                    <!-- Data Grid (Compact 1px inner borders technique) -->
+                    <!-- Data Grid (Thin 1px inner borders for super clean look) -->
                     <div class="grid grid-cols-2 md:grid-cols-4 bg-gray-200 gap-[1px]">
                         
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Molecular Wt.</span>
-                            <span id="molecular_weight" class="text-lg font-medium text-gray-900">0</span>
-                            <span class="text-[10px] text-gray-400">g/mol</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Molecular Wt.</span>
+                            <div class="flex items-baseline gap-1">
+                                <span id="molecular_weight" class="text-2xl font-bold text-gray-900">0</span>
+                                <span class="text-xs text-gray-500 font-medium">g/mol</span>
+                            </div>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Atoms</span>
-                            <span id="atoms_total" class="text-lg font-medium text-gray-900">0</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total Atoms</span>
+                            <span id="atoms_total" class="text-2xl font-bold text-gray-900">0</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Hydrogen Atoms</span>
-                            <span id="hydrogen_atoms" class="text-lg font-medium text-gray-900">0</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Hydrogen</span>
+                            <span id="hydrogen_atoms" class="text-2xl font-bold text-gray-900">0</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Rings</span>
-                            <span id="rings" class="text-lg font-medium text-gray-900">0</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Rings</span>
+                            <span id="rings" class="text-2xl font-bold text-gray-900">0</span>
                         </div>
                         
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Double Bonds</span>
-                            <span id="double_bonds" class="text-lg font-medium text-gray-900">0</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Double Bonds</span>
+                            <span id="double_bonds" class="text-2xl font-bold text-gray-900">0</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Triple Bonds</span>
-                            <span id="triple_bonds" class="text-lg font-medium text-gray-900">0</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Triple Bonds</span>
+                            <span id="triple_bonds" class="text-2xl font-bold text-gray-900">0</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col col-span-2">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Functional Groups</span>
-                            <span id="functional_groups" class="text-sm font-medium text-gray-900 truncate" title="-">-</span>
+                        <div class="bg-white p-5 flex flex-col justify-center items-start col-span-2">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Functional Groups</span>
+                            <span id="functional_groups" class="text-lg font-semibold text-gray-800 line-clamp-2" title="-">-</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Chemical Properties -->
-                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
-                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Estimated Properties</h3>
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Estimated Properties</h3>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-5 bg-gray-200 gap-[1px]">
                         
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Aromatic</span>
-                            <span id="aromatic" class="text-sm font-medium text-gray-900">-</span>
+                        <div class="bg-white p-5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Aromatic</span>
+                            <span id="aromatic" class="text-lg font-semibold text-gray-900">-</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Polarity</span>
-                            <span id="polarity" class="text-sm font-medium text-gray-900 capitalize">-</span>
+                        <div class="bg-white p-5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Polarity</span>
+                            <span id="polarity" class="text-lg font-semibold text-gray-900 capitalize">-</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Acidic</span>
-                            <span id="acidic" class="text-sm font-medium text-gray-900">-</span>
+                        <div class="bg-white p-5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Acidic</span>
+                            <span id="acidic" class="text-lg font-semibold text-gray-900">-</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Basic</span>
-                            <span id="basic" class="text-sm font-medium text-gray-900">-</span>
+                        <div class="bg-white p-5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Basic</span>
+                            <span id="basic" class="text-lg font-semibold text-gray-900">-</span>
                         </div>
-                        <div class="bg-white p-3 flex flex-col">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Organic</span>
-                            <span id="organic" class="text-sm font-medium text-gray-900">-</span>
+                        <div class="bg-white p-5 flex flex-col items-center justify-center text-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Organic</span>
+                            <span id="organic" class="text-lg font-semibold text-gray-900">-</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="text-[10px] text-gray-400 uppercase text-center mt-2 tracking-wider">
+                <div class="text-xs font-medium text-gray-400 uppercase text-center mt-4 tracking-wider">
                     Disclaimer: Data is LLM-estimated via Cheminformatics rules. Exact chemistry may require specialized libraries.
                 </div>
             </div>
@@ -176,6 +212,7 @@
     </main>
 
     <script>
+        // API key setup (Aapka Groq logic waise ka waisa hi hai)
         const wtfareyoudoing = window.atob("Z3NrX21pZ2l3aUl1dTFPQlhpMGpUOTQ2V0dkeWIzRllrZkZ3ZnJFbHdVS1VDdVBRZzQyVFBPbG0=");
 
         const systemPrompt = `You are a cheminformatics assistant.
@@ -209,28 +246,55 @@ JSON OUTPUT SCHEMA
   }
 }`;
 
-        // Utility to handle formatting boolean to Yes/No
+        // Boolean ko Yes/No me badalne ka utility function
         const formatBool = (val) => val === true ? "Yes" : val === false ? "No" : "-";
 
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        let isFirstSearch = true; // Track karenge ki first search hua ya nahi
+
+        // Dono forms ka logic handle karne ke liye ek common function
+        async function handleSearchSubmit(e, source) {
             e.preventDefault();
             
-            const formulaInput = document.getElementById("formula_input").value.trim();
+            // Input value nikal rahe hain based on kaunsa form submit hua
+            const formulaInput = source === 'home' 
+                ? document.getElementById("home_formula_input").value.trim()
+                : document.getElementById("top_formula_input").value.trim();
+
             if (!formulaInput) return;
 
-            // UI State updates
-            const btn = document.getElementById("analyzeBtn");
+            // UI Elements ko pakad rahe hain
+            const topBtn = document.getElementById("topAnalyzeBtn");
             const btnText = document.getElementById("btnText");
-            const emptyState = document.getElementById("emptyState");
-            const errorState = document.getElementById("errorState");
+            const homeBtn = document.getElementById("homeAnalyzeBtn");
+            
+            const homeHero = document.getElementById("homeHero");
+            const topHeader = document.getElementById("topHeader");
+            const mainContent = document.getElementById("mainContent");
             const dashboard = document.getElementById("resultsDashboard");
+            const errorState = document.getElementById("errorState");
 
-            // Set Loading state
-            btn.disabled = true;
-            btnText.innerHTML = `<svg class="animate-spin h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Analyzing`;
-            emptyState.classList.add("hidden-state");
+            // Agar ye pehla search hai, toh UI ko Home se Dashboard style me transition karo
+            if (isFirstSearch) {
+                homeHero.classList.add("hidden-state");
+                topHeader.classList.remove("hidden-state");
+                topHeader.classList.add("slide-down");
+                mainContent.classList.remove("hidden-state");
+                isFirstSearch = false;
+            }
+
+            // Dono inputs me value sync rakho
+            document.getElementById("top_formula_input").value = formulaInput;
+
+            // Loading state set kar rahe hain (Spinner laga rahe hain top button me)
+            topBtn.disabled = true;
+            if(source === 'home') homeBtn.disabled = true; // Home button ko bhi disable karo incase glitch se click ho jaye
+
+            btnText.innerHTML = `<svg class="animate-spin h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span class="ml-1">Analyzing</span>`;
+            
+            // Dashboard ko thoda transparent kar rahe hain loading ke time
+            dashboard.style.opacity = "0.5";
             errorState.classList.add("hidden-state");
-            dashboard.classList.add("hidden-state");
+            dashboard.classList.remove("hidden-state"); // Ensure it's visible but faded
 
             const request_body = {
                 messages: [
@@ -247,6 +311,7 @@ JSON OUTPUT SCHEMA
             };
 
             try {
+                // API Call bhej rahe hain Groq ko
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
@@ -265,10 +330,12 @@ JSON OUTPUT SCHEMA
                 const ai_json = JSON.parse(jsonString);
 
                 if (!ai_json.found) {
-                    document.getElementById("errorMessage").innerText = `Could not identify chemical parameters for "${formulaInput}".`;
+                    // Agar structure nahi mila
+                    document.getElementById("errorMessage").innerText = `Could not identify chemical parameters for "${formulaInput}". Please check the spelling.`;
                     errorState.classList.remove("hidden-state");
+                    dashboard.classList.add("hidden-state"); // Dashboard hide kar do errors par
                 } else {
-                    // Populate Dashboard
+                    // Data aagaya, ab Dashboard populate kar rahe hain
                     document.getElementById("chemical_name").innerText = ai_json.chemical_name || "-";
                     document.getElementById("formula_text").innerText = ai_json.formula || "-";
                     document.getElementById("smiles_code").innerText = ai_json.smiles || "-";
@@ -280,14 +347,14 @@ JSON OUTPUT SCHEMA
                     document.getElementById("triple_bonds").innerText = ai_json.triple_bonds || "0";
                     document.getElementById("rings").innerText = ai_json.rings || "0";
                     
-                    // Handle functional groups array cleanly
+                    // Functional groups ki list theek kar rahe hain
                     let groupsText = "None";
                     if (ai_json.functional_groups && ai_json.functional_groups.length > 0) {
                         groupsText = ai_json.functional_groups.map(g => g.replace(/group/i, '').trim()).join(", ");
                     }
                     const groupsEl = document.getElementById("functional_groups");
                     groupsEl.innerText = groupsText || "None";
-                    groupsEl.title = groupsText || "None"; // Tooltip for overflow
+                    groupsEl.title = groupsText || "None"; // Hover karne par pura text dikhega
                     
                     document.getElementById("aromatic").innerText = formatBool(ai_json.aromatic);
                     document.getElementById("polarity").innerText = ai_json.basic_properties?.polarity || "-";
@@ -295,26 +362,33 @@ JSON OUTPUT SCHEMA
                     document.getElementById("basic").innerText = formatBool(ai_json.basic_properties?.basic);
                     document.getElementById("organic").innerText = formatBool(ai_json.basic_properties?.organic);
 
-                    // Load Image (Reset state first)
+                    // Image load karna (Purani image ka cache/state hata kar)
                     const imgEl = document.getElementById("smiles_image");
                     const fallbackEl = document.getElementById("imgFallback");
                     imgEl.style.display = 'block';
+                    imgEl.style.opacity = '0'; // Smooth fade-in ke liye
                     fallbackEl.style.display = 'none';
                     imgEl.src = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(ai_json.smiles)}/PNG`;
-
-                    // Show dashboard
-                    dashboard.classList.remove("hidden-state");
+                    
+                    imgEl.onload = () => { imgEl.style.opacity = '1'; }; // Jab load ho tabhi dikhao
                 }
             } catch (error) {
                 console.error("Analysis Error:", error);
-                document.getElementById("errorMessage").innerText = "An error occurred while connecting to the chemical database.";
+                document.getElementById("errorMessage").innerText = "An error occurred while connecting to the chemical database API.";
                 errorState.classList.remove("hidden-state");
+                dashboard.classList.add("hidden-state");
             } finally {
-                // Restore Button State
-                btn.disabled = false;
+                // UI States wapas normal par le aao
+                topBtn.disabled = false;
+                if(source === 'home') homeBtn.disabled = false;
                 btnText.innerText = "Analyze";
+                dashboard.style.opacity = "1"; // Fade hatao
             }
-        });
+        }
+
+        // Event listeners dono forms par lagana
+        document.getElementById('homeSearchForm').addEventListener('submit', (e) => handleSearchSubmit(e, 'home'));
+        document.getElementById('topSearchForm').addEventListener('submit', (e) => handleSearchSubmit(e, 'top'));
     </script>
 </body>
 </html>
