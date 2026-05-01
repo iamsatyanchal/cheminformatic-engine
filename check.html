@@ -102,9 +102,20 @@
             <!-- Left Column: Visuals & Core Identity -->
             <div class="lg:col-span-5 flex flex-col gap-6">
                 
-                <!-- Primary Info Card -->
+                <!-- Structure Card (Ab upar hai) -->
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Molecular Structure</h3>
+                    </div>
+                    <div class="p-6 flex-grow flex items-center justify-center bg-white min-h-[300px]">
+                        <img id="smiles_image" class="max-w-full max-h-[300px] object-contain mix-blend-multiply transition-opacity duration-300" alt="Chemical Structure" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='block';">
+                        <div id="imgFallback" class="text-base text-gray-400 hidden-state font-medium">Structure preview unavailable</div>
+                    </div>
+                </div>
+
+                <!-- Primary Info Card (Ab niche hai) -->
                 <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md">
-                    <div class="p-6 border-b border-gray-100">
+                    <div class="p-6 border-b border-gray-100 bg-white">
                         <h2 id="chemical_name" class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">-</h2>
                         <div class="inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-gray-100 text-gray-800 border border-gray-200">
                             Formula: <span id="formula_text" class="ml-1 font-mono text-base">-</span>
@@ -116,16 +127,6 @@
                     </div>
                 </div>
 
-                <!-- Structure Card -->
-                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-md">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Molecular Structure</h3>
-                    </div>
-                    <div class="p-6 flex-grow flex items-center justify-center bg-white min-h-[300px]">
-                        <img id="smiles_image" class="max-w-full max-h-[300px] object-contain mix-blend-multiply transition-opacity duration-300" alt="Chemical Structure" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='block';">
-                        <div id="imgFallback" class="text-base text-gray-400 hidden-state font-medium">Structure preview unavailable</div>
-                    </div>
-                </div>
             </div>
 
             <!-- Right Column: Data Grid -->
