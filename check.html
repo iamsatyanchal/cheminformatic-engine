@@ -176,8 +176,7 @@
     </main>
 
     <script>
-        const apiKey = ""; // API key is populated by the execution environment
-        const modelEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        const wtfareyoudoing = window.atob("Z3NrX21pZ2l3aUl1dTFPQlhpMGpUOTQ2V0dkeWIzRllrZkZ3ZnJFbHdVS1VDdVBRZzQyVFBPbG0=");
 
         const systemPrompt = `You are a cheminformatics assistant.
 Your task is to take a chemical name OR chemical formula as input and return the SMILES representation and chemical information in strict JSON format.
@@ -185,54 +184,33 @@ Rules:
 1. Identify the chemical accurately.
 2. Generate the correct canonical SMILES string.
 3. If the chemical cannot be identified securely, set "found": false.
-4. Return ONLY valid JSON matching the schema provided.`;
+4. Return ONLY valid JSON matching the schema provided below.
 
-        const responseSchema = {
-            type: "OBJECT",
-            properties: {
-                found: { type: "BOOLEAN" },
-                input: { type: "STRING" },
-                chemical_name: { type: "STRING" },
-                formula: { type: "STRING" },
-                smiles: { type: "STRING" },
-                molecular_weight: { type: "NUMBER" },
-                atoms: { type: "INTEGER" },
-                hydrogen_atoms: { type: "INTEGER" },
-                double_bonds: { type: "INTEGER" },
-                triple_bonds: { type: "INTEGER" },
-                aromatic: { type: "BOOLEAN" },
-                rings: { type: "INTEGER" },
-                functional_groups: { type: "ARRAY", items: { type: "STRING" } },
-                basic_properties: {
-                    type: "OBJECT",
-                    properties: {
-                        polarity: { type: "STRING" },
-                        acidic: { type: "BOOLEAN" },
-                        basic: { type: "BOOLEAN" },
-                        organic: { type: "BOOLEAN" }
-                    }
-                }
-            },
-            required: ["found", "chemical_name", "formula", "smiles"]
-        };
+JSON OUTPUT SCHEMA
+{
+  "found": boolean,
+  "input": string,
+  "chemical_name": string,
+  "formula": string,
+  "smiles": string,
+  "molecular_weight": number,
+  "atoms": number,
+  "hydrogen_atoms": number,
+  "double_bonds": number,
+  "triple_bonds": number,
+  "aromatic": boolean,
+  "rings": number,
+  "functional_groups": [string],
+  "basic_properties": {
+    "polarity": string,
+    "acidic": boolean,
+    "basic": boolean,
+    "organic": boolean
+  }
+}`;
 
         // Utility to handle formatting boolean to Yes/No
         const formatBool = (val) => val === true ? "Yes" : val === false ? "No" : "-";
-
-        // Exponential backoff fetch
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return await response.json();
-                } catch (error) {
-                    if (i === maxRetries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delays[i]));
-                }
-            }
-        }
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -254,24 +232,34 @@ Rules:
             errorState.classList.add("hidden-state");
             dashboard.classList.add("hidden-state");
 
-            const payload = {
-                contents: [{ parts: [{ text: formulaInput }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: responseSchema,
-                    temperature: 0.1 // Low temp for more factual results
-                }
+            const request_body = {
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: formulaInput }
+                ],
+                model: "qwen/qwen3-32b",
+                temperature: 0.6,
+                max_completion_tokens: 4096,
+                top_p: 0.95,
+                stream: false,
+                reasoning_effort: "none",
+                response_format: { type: "json_object" }
             };
 
             try {
-                const data = await fetchWithRetry(modelEndpoint, {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + wtfareyoudoing
+                    },
+                    body: JSON.stringify(request_body)
                 });
 
-                const jsonString = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                const jsonString = data.choices[0].message.content;
                 if (!jsonString) throw new Error("Invalid response format from AI");
                 
                 const ai_json = JSON.parse(jsonString);
