@@ -369,7 +369,7 @@ JSON OUTPUT SCHEMA
                     imgEl.style.display = 'block';
                     imgEl.style.opacity = '0'; // Smooth fade-in ke liye
                     fallbackEl.style.display = 'none';
-                    imgEl.src = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(ai_json.smiles)}/PNG`;
+                    imgEl.src = `https://cactus.nci.nih.gov/chemical/structure/${encodeURIComponent(ai_json.smiles)}/image?bgcolor=white`;
                     
                     imgEl.onload = () => { imgEl.style.opacity = '1'; }; // Jab load ho tabhi dikhao
                 }
