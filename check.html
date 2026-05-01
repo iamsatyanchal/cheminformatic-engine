@@ -1,80 +1,332 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Cheminformatic Engine</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheminformatic Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for compactness */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Utility to hide elements cleanly */
+        .hidden-state { display: none !important; }
+    </style>
 </head>
-<body class="py-4 bg-gray-200 font-sans text-black">
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen antialiased">
 
-<div class="max-w-4xl mx-auto text-center mb-6">
-<input id="formula_input" class="border-4 border-black px-4 py-2 text-lg w-72" placeholder="Enter Chemical Name or Formula">
-<button onclick="analyze_formula()" id="btnhai" class="font-bold bg-black text-white px-6 py-2 border-4 border-black ml-2">Analyze</button>
-</div>
+    <!-- Top Navigation / Search Bar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-black text-white flex items-center justify-center font-bold text-xs rounded-sm">C</div>
+                <h1 class="font-semibold text-lg tracking-tight">Cheminformatic Engine</h1>
+            </div>
+            
+            <form id="searchForm" class="flex w-full sm:w-auto gap-2">
+                <input 
+                    type="text" 
+                    id="formula_input" 
+                    class="w-full sm:w-80 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-shadow placeholder:text-gray-400" 
+                    placeholder="Enter Chemical Name (e.g., Benzene) or Formula"
+                    required
+                >
+                <button 
+                    type="submit" 
+                    id="analyzeBtn" 
+                    class="bg-black text-white px-4 py-1.5 text-sm font-medium rounded-md hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap min-w-[100px] justify-center"
+                >
+                    <span id="btnText">Analyze</span>
+                </button>
+            </form>
+        </div>
+    </header>
 
-<div class="max-w-4xl mx-auto bg-white border-8 border-black shadow-2xl">
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Welcome / Empty State -->
+        <div id="emptyState" class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            </div>
+            <h2 class="text-xl font-medium text-gray-900 mb-2">Awaiting Input</h2>
+            <p class="text-sm text-gray-500 max-w-md mx-auto">Enter a chemical name or formula in the search bar above to generate a comprehensive structural and property analysis.</p>
+        </div>
 
-<div class="bg-yellow-400 border-b-8 border-black p-6 text-center">
-<h1 class="text-4xl font-black uppercase tracking-tighter">Chemical Analysis</h1>
-<h2 id="formula_text" class="text-xl font-bold mt-2 bg-black text-yellow-400 inline-block px-4 py-1">FORMULA: -</h2>
-</div>
+        <!-- Error State -->
+        <div id="errorState" class="hidden-state bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6 text-sm">
+            <strong class="font-semibold">Analysis Failed: </strong>
+            <span id="errorMessage">Could not identify the requested chemical structure. Please check your spelling and try again.</span>
+        </div>
 
-<div class="border-t-8 bg-[#f5f5f5] border-black flex justify-center">
-<img id="smiles_image">
-</div>
-<div class="border-t-4 border-black grid grid-cols-2 text-lg font-bold text-center">
+        <!-- Dashboard Results -->
+        <div id="resultsDashboard" class="hidden-state grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Visuals & Core Identity -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <!-- Structure Card -->
+                <div class="bg-white border border-gray-200 rounded-md overflow-hidden flex flex-col shadow-sm">
+                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Molecular Structure</h3>
+                    </div>
+                    <div class="p-4 flex-grow flex items-center justify-center bg-white min-h-[250px]">
+                        <img id="smiles_image" class="max-w-full max-h-[250px] object-contain mix-blend-multiply" alt="Chemical Structure" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='block';">
+                        <div id="imgFallback" class="text-sm text-gray-400 hidden-state">Structure preview unavailable</div>
+                    </div>
+                </div>
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Chemical Name</div>
-<div id="chemical_name" class="p-4 border-b-4 border-black text-xl">-</div>
+                <!-- Primary Info Card -->
+                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-gray-100">
+                        <h2 id="chemical_name" class="text-2xl font-bold tracking-tight text-gray-900 mb-1">-</h2>
+                        <div class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                            Formula: <span id="formula_text" class="ml-1 font-mono">-</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Canonical SMILES</div>
+                        <div id="smiles_code" class="text-sm font-mono text-gray-800 break-all bg-white border border-gray-200 p-2 rounded">-</div>
+                    </div>
+                </div>
+            </div>
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">SMILES</div>
-<div id="smiles_code" class="p-4 border-b-4 border-black text-xl break-all">-</div>
+            <!-- Right Column: Data Grid -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- Physical & Structural Stats -->
+                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Structural Composition</h3>
+                    </div>
+                    <!-- Data Grid (Compact 1px inner borders technique) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 bg-gray-200 gap-[1px]">
+                        
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Molecular Wt.</span>
+                            <span id="molecular_weight" class="text-lg font-medium text-gray-900">0</span>
+                            <span class="text-[10px] text-gray-400">g/mol</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Atoms</span>
+                            <span id="atoms_total" class="text-lg font-medium text-gray-900">0</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Hydrogen Atoms</span>
+                            <span id="hydrogen_atoms" class="text-lg font-medium text-gray-900">0</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Rings</span>
+                            <span id="rings" class="text-lg font-medium text-gray-900">0</span>
+                        </div>
+                        
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Double Bonds</span>
+                            <span id="double_bonds" class="text-lg font-medium text-gray-900">0</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Triple Bonds</span>
+                            <span id="triple_bonds" class="text-lg font-medium text-gray-900">0</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col col-span-2">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Functional Groups</span>
+                            <span id="functional_groups" class="text-sm font-medium text-gray-900 truncate" title="-">-</span>
+                        </div>
+                    </div>
+                </div>
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Molecular Weight</div>
-<div id="molecular_weight" class="p-4 border-b-4 border-black text-xl">0</div>
+                <!-- Chemical Properties -->
+                <div class="bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                    <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Estimated Properties</h3>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 bg-gray-200 gap-[1px]">
+                        
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Aromatic</span>
+                            <span id="aromatic" class="text-sm font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Polarity</span>
+                            <span id="polarity" class="text-sm font-medium text-gray-900 capitalize">-</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Acidic</span>
+                            <span id="acidic" class="text-sm font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Basic</span>
+                            <span id="basic" class="text-sm font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="bg-white p-3 flex flex-col">
+                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Organic</span>
+                            <span id="organic" class="text-sm font-medium text-gray-900">-</span>
+                        </div>
+                    </div>
+                </div>
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Total Atoms</div>
-<div id="atoms_total" class="p-4 border-b-4 border-black text-xl">0</div>
+                <div class="text-[10px] text-gray-400 uppercase text-center mt-2 tracking-wider">
+                    Disclaimer: Data is LLM-estimated via Cheminformatics rules. Exact chemistry may require specialized libraries.
+                </div>
+            </div>
+        </div>
+    </main>
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Hydrogen Atoms</div>
-<div id="hydrogen_atoms" class="p-4 border-b-4 border-black text-xl">0</div>
+    <script>
+        const apiKey = ""; // API key is populated by the execution environment
+        const modelEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Double Bonds</div>
-<div id="double_bonds" class="p-4 border-b-4 border-black text-xl">0</div>
+        const systemPrompt = `You are a cheminformatics assistant.
+Your task is to take a chemical name OR chemical formula as input and return the SMILES representation and chemical information in strict JSON format.
+Rules:
+1. Identify the chemical accurately.
+2. Generate the correct canonical SMILES string.
+3. If the chemical cannot be identified securely, set "found": false.
+4. Return ONLY valid JSON matching the schema provided.`;
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Triple Bonds</div>
-<div id="triple_bonds" class="p-4 border-b-4 border-black text-xl">0</div>
+        const responseSchema = {
+            type: "OBJECT",
+            properties: {
+                found: { type: "BOOLEAN" },
+                input: { type: "STRING" },
+                chemical_name: { type: "STRING" },
+                formula: { type: "STRING" },
+                smiles: { type: "STRING" },
+                molecular_weight: { type: "NUMBER" },
+                atoms: { type: "INTEGER" },
+                hydrogen_atoms: { type: "INTEGER" },
+                double_bonds: { type: "INTEGER" },
+                triple_bonds: { type: "INTEGER" },
+                aromatic: { type: "BOOLEAN" },
+                rings: { type: "INTEGER" },
+                functional_groups: { type: "ARRAY", items: { type: "STRING" } },
+                basic_properties: {
+                    type: "OBJECT",
+                    properties: {
+                        polarity: { type: "STRING" },
+                        acidic: { type: "BOOLEAN" },
+                        basic: { type: "BOOLEAN" },
+                        organic: { type: "BOOLEAN" }
+                    }
+                }
+            },
+            required: ["found", "chemical_name", "formula", "smiles"]
+        };
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Aromatic</div>
-<div id="aromatic" class="p-4 border-b-4 border-black text-xl">-</div>
+        // Utility to handle formatting boolean to Yes/No
+        const formatBool = (val) => val === true ? "Yes" : val === false ? "No" : "-";
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Rings</div>
-<div id="rings" class="p-4 border-b-4 border-black text-xl">0</div>
+        // Exponential backoff fetch
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Functional Groups</div>
-<div id="functional_groups" class="p-4 border-b-4 border-black text-xl">-</div>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formulaInput = document.getElementById("formula_input").value.trim();
+            if (!formulaInput) return;
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Polarity</div>
-<div id="polarity" class="p-4 border-b-4 border-black text-xl">-</div>
+            // UI State updates
+            const btn = document.getElementById("analyzeBtn");
+            const btnText = document.getElementById("btnText");
+            const emptyState = document.getElementById("emptyState");
+            const errorState = document.getElementById("errorState");
+            const dashboard = document.getElementById("resultsDashboard");
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Acidic</div>
-<div id="acidic" class="p-4 border-b-4 border-black text-xl">-</div>
+            // Set Loading state
+            btn.disabled = true;
+            btnText.innerHTML = `<svg class="animate-spin h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Analyzing`;
+            emptyState.classList.add("hidden-state");
+            errorState.classList.add("hidden-state");
+            dashboard.classList.add("hidden-state");
 
-<div class="p-4 border-b-4 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Basic</div>
-<div id="basic" class="p-4 border-b-4 border-black text-xl">-</div>
+            const payload = {
+                contents: [{ parts: [{ text: formulaInput }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: responseSchema,
+                    temperature: 0.1 // Low temp for more factual results
+                }
+            };
 
-<div class="p-4 border-b-8 border-r-4 border-black bg-gray-200 uppercase text-gray-600">Organic</div>
-<div id="organic" class="p-4 border-b-8 border-black text-xl">-</div>
+            try {
+                const data = await fetchWithRetry(modelEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
 
-</div>
+                const jsonString = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!jsonString) throw new Error("Invalid response format from AI");
+                
+                const ai_json = JSON.parse(jsonString);
 
-<div class="bg-black text-gray-300 p-4 text-xs uppercase text-center font-semibold">
-Estimated counts based on simple string parsing. Exact chemistry requires structural parsing libraries.
-</div>
+                if (!ai_json.found) {
+                    document.getElementById("errorMessage").innerText = `Could not identify chemical parameters for "${formulaInput}".`;
+                    errorState.classList.remove("hidden-state");
+                } else {
+                    // Populate Dashboard
+                    document.getElementById("chemical_name").innerText = ai_json.chemical_name || "-";
+                    document.getElementById("formula_text").innerText = ai_json.formula || "-";
+                    document.getElementById("smiles_code").innerText = ai_json.smiles || "-";
+                    
+                    document.getElementById("molecular_weight").innerText = ai_json.molecular_weight || "0";
+                    document.getElementById("atoms_total").innerText = ai_json.atoms || "0";
+                    document.getElementById("hydrogen_atoms").innerText = ai_json.hydrogen_atoms || "0";
+                    document.getElementById("double_bonds").innerText = ai_json.double_bonds || "0";
+                    document.getElementById("triple_bonds").innerText = ai_json.triple_bonds || "0";
+                    document.getElementById("rings").innerText = ai_json.rings || "0";
+                    
+                    // Handle functional groups array cleanly
+                    let groupsText = "None";
+                    if (ai_json.functional_groups && ai_json.functional_groups.length > 0) {
+                        groupsText = ai_json.functional_groups.map(g => g.replace(/group/i, '').trim()).join(", ");
+                    }
+                    const groupsEl = document.getElementById("functional_groups");
+                    groupsEl.innerText = groupsText || "None";
+                    groupsEl.title = groupsText || "None"; // Tooltip for overflow
+                    
+                    document.getElementById("aromatic").innerText = formatBool(ai_json.aromatic);
+                    document.getElementById("polarity").innerText = ai_json.basic_properties?.polarity || "-";
+                    document.getElementById("acidic").innerText = formatBool(ai_json.basic_properties?.acidic);
+                    document.getElementById("basic").innerText = formatBool(ai_json.basic_properties?.basic);
+                    document.getElementById("organic").innerText = formatBool(ai_json.basic_properties?.organic);
 
-</div>
+                    // Load Image (Reset state first)
+                    const imgEl = document.getElementById("smiles_image");
+                    const fallbackEl = document.getElementById("imgFallback");
+                    imgEl.style.display = 'block';
+                    fallbackEl.style.display = 'none';
+                    imgEl.src = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(ai_json.smiles)}/PNG`;
 
-<script src="./check.js"></script>
-
+                    // Show dashboard
+                    dashboard.classList.remove("hidden-state");
+                }
+            } catch (error) {
+                console.error("Analysis Error:", error);
+                document.getElementById("errorMessage").innerText = "An error occurred while connecting to the chemical database.";
+                errorState.classList.remove("hidden-state");
+            } finally {
+                // Restore Button State
+                btn.disabled = false;
+                btnText.innerText = "Analyze";
+            }
+        });
+    </script>
 </body>
 </html>
